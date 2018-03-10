@@ -1,0 +1,1 @@
+int computeAverage(int, int);
