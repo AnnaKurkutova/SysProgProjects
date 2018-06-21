@@ -5,7 +5,6 @@
 Используемые функции интерфейса: dlopen, dlsym, dlclose. */
 
 #include <stdio.h>
-#include <string.h>
 #include <dlfcn.h>
 #include "intNumCalcFunc.h"
 
