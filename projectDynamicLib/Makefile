@@ -1,15 +1,18 @@
-.PHONY: all clean
+.PHONY: all
 
-all: libintNumCalcDyn.so resultDyn 
+all: intNumCalcFunc.o libintNumCalcDyn.so test.o resultDyn 
 
-clean:
-	rm -rf resultDyn libintNumCalcDyn.so
+intNumCalcFunc.o: intNumCalcFunc.c
+	gcc -fPIC -c intNumCalcFunc.c
 
-libintNumCalcDyn.so: intNumCalcFunc.c
-	gcc -shared intNumCalcFunc.c -o libintNumCalcDyn.so 
+libintNumCalcDyn.so: intNumCalcFunc.o
+	gcc -shared -o libintNumCalcDyn.so intNumCalcFunc.o
 
-resultDyn: test.c
-	gcc test.c -L. -lintNumCalcDyn -o resultDyn
+test.o: test.c
+	gcc -c test.c
+
+resultDyn: test.o
+	gcc test.o -L. -lintNumCalcDyn -o resultDyn
 	export LD_LIBRARY_PATH=.; ./resultDyn
 
 
