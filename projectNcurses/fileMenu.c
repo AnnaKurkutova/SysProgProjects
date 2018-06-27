@@ -52,11 +52,9 @@ int main()
     my_panels[1] = new_panel(my_wins[1]);
     
     /* Вывод в окна состава первой директории*/
-    //dirOpen(my_wins[0], namePath);
-    //dirOpen(my_wins[1], namePath);
-    int k;
+    int k;//количество элементов массива
     k = dirOpen(my_wins[0], namePath, arrOfPathNames, maxLenth);
-    k = dirOpen(my_wins[1], namePath, arrOfPathNames, maxLenth);
+    dirOpen(my_wins[1], namePath, arrOfPathNames, maxLenth);
 
 
     /* Установка указателей на следующее окно
