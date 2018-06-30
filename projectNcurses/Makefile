@@ -11,4 +11,4 @@ fileMenuFunc.o: fileMenuFunc.c
 #Компилляция и запуск тестовой программы.
 fileMenu: fileMenu.o fileMenuFunc.o
 	gcc ./fileMenu.o ./fileMenuFunc.o -o fileMenu -lpanel -lncurses
-	./fileMenu
+	valgrind --leak-check=full --show-leak-kinds=all ./fileMenu
