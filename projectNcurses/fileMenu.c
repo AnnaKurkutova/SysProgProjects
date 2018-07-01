@@ -159,9 +159,9 @@ int main(){
     // Уничтожение созданных панелей и окон
     for(int i = 0; i < NUM; i++){
     	del_panel(myPanels[i]);
-    	delwin(myWins[i]);
+    	destroyWin(myWins[i]);
     }
-    
+
     // Высвобождение памяти 
     for (int i = 0; i < NUM; i++){
         free(arrOfPathNames[i]);
@@ -175,6 +175,9 @@ int main(){
 
     // Завершение программы
     endwin();
-    return 0;
+    if(isendwin() == FALSE){
+        refresh();
+    }
+    exit(EXIT_SUCCESS);
 }
 

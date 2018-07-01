@@ -27,7 +27,7 @@ void printInMiddle(WINDOW *win, int starty, int startx, int width, char *string,
     wattron(win, color);
     mvwprintw(win, y, x, "%s", string);
     wattroff(win, color);
-    refresh();
+    wrefresh(win);
 }
 
 /* Отрисовка шапки */
@@ -75,7 +75,6 @@ int dirOpen(WINDOW* win ,char* namePath, char **arrOfPathNames, int maxLenth, in
 
     // Заходим в каталог
     result = chdir(namePath);
-    if(result != 0) printf("Can't go to %s\n", namePath);
 
     wmove(win, header, 0);// пропускаем шапку
     
@@ -104,4 +103,22 @@ int dirOpen(WINDOW* win ,char* namePath, char **arrOfPathNames, int maxLenth, in
             free(nameList);
         }
     return k;
+}
+
+void destroyWin(WINDOW *myWin)
+{       
+        wborder(myWin, ' ', ' ', ' ',' ',' ',' ',' ',' ');
+        /* Принимаемые параметры: 
+         * 1. myWin: текущее окно
+         * 2. ls: левый край окна
+         * 3. rs: правый край окна
+         * 4. ts: верхний край окна
+         * 5. bs: нижний край окна
+         * 6. tl: левый верхний угол окна 
+         * 7. tr: правый верхний угол окна 
+         * 8. bl: левый нижний угол окна 
+         * 9. br: правый нижний угол окна
+         */
+        wrefresh(myWin);
+        delwin(myWin);
 }

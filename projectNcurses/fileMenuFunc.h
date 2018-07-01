@@ -8,3 +8,4 @@ void drawHeader(WINDOW*);
 void initWins(WINDOW**);
 /* Работа с директориями */
 int dirOpen(WINDOW* ,char* , char**, int, int);
+void destroyWin(WINDOW*);
