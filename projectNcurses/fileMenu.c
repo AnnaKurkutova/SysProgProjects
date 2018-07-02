@@ -36,13 +36,13 @@ int main(){
 
     // Выделение памяти под массив путей каталогов и файлов 
     char ***arrOfPathNames;
-    arrOfPathNames = (int ***) malloc(NUM*sizeof(int**));// для каждого окна свой массив строк
+    arrOfPathNames = malloc(NUM*sizeof(int**));// для каждого окна свой массив строк
 
     for (int i = 0; i < NUM; i++) {
-        arrOfPathNames[i] = (int **) malloc(nstrok*sizeof(int*));
+        arrOfPathNames[i] = malloc(nstrok*sizeof(int*));
 
         for(int j = 0; j < nstrok; j++) {
-            arrOfPathNames[i][j] = (int *) malloc(mstolb*sizeof(int));
+            arrOfPathNames[i][j] = malloc(mstolb*sizeof(int));
         }
     }
 
@@ -127,7 +127,7 @@ int main(){
             case '\n':{
                 if((y - HEADER) <= numOfElems[flag]){
                     free(namePath);// высвобождаем память под путь
-                    namePath = (char *)malloc(PATH_MAX + 1);// выделяем заново памть под путь
+                    namePath = malloc(PATH_MAX + 1);// выделяем заново памть под путь
                     strncpy(namePath, arrOfPathNames[flag][y - HEADER], PATH_MAX);// новый путь
 
                     //Высвобождение памяти массива каталогов и файлов
@@ -137,9 +137,9 @@ int main(){
                     free(arrOfPathNames[flag]);
 
                     // Выделение памяти под массив каталогов и файлов
-                    arrOfPathNames[flag] = (char**)malloc(nstrok*sizeof(char*));
+                    arrOfPathNames[flag] = malloc(nstrok*sizeof(char*));
                     for(int i = 0; i < nstrok; i++){
-                        arrOfPathNames[flag][i] = (char*)malloc(mstolb*sizeof(char));
+                        arrOfPathNames[flag][i] = malloc(mstolb*sizeof(char));
                     }
                     
                     wmove(panel_window(top), 0, 0);// в левый верхний угол окна
@@ -163,15 +163,15 @@ int main(){
     }
 
     // Высвобождение памяти 
+    free(namePath);
+    
     for (int i = 0; i < NUM; i++){
-        free(arrOfPathNames[i]);
-
         for(int j = 0; j < nstrok; j++){
             free(arrOfPathNames[i][j]);
         }
+        free(arrOfPathNames[i]);
     }
     free(arrOfPathNames);
-    free(namePath);
 
     // Завершение программы
     endwin();
