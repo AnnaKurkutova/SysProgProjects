@@ -7,36 +7,36 @@
 
 /*******************************************
 ********************************************
-**     Перед первым pidFirst = fork();    **
+**     Перед первым pid[0] = fork();      **
 **                P                       **
 **                                        **
-**     После первого pidFirst = fork()    **
+**     После первого pid[0] = fork()      **
 **                P                       **
 **              /                         **
 **           P(1)                         **
 **                                        **
-**     После второго pidSecond = fork()   **
+**     После второго pid[1] = fork()      **
 **                P                       **
 **              /                         **
 **           P(1)                         **
 **           /                            **
 **     P(1)(2)                            **
 **                                        **
-**     После третьего pidThird = fork()   **
+**     После третьего pid[2] = fork()     **
 **                P                       **
 **              /  \                      **
 **           P(1)  P(2)                   **
 **           /                            **
 **     P(1)(2)                            **
 **                                        **
-**     После четвёртого pidFourth = fork()**
+**     После четвёртого pid[3] = fork()   **
 **                P                       **
 **              /  \                      **
 **           P(1)  P(2)                   **
 **           /     /                      **
 **     P(1)(2)  P(2)(3)                   **
 **                                        **
-**     После пятого pidFifth = fork()     **
+**     После пятого pid[4] = fork()       **
 **                P                       **
 **              /  \                      **
 **           P(1)  P(2)                   **
@@ -62,7 +62,7 @@ void processStat(pid_t pid){
 
 int main (void) {
  
-    pid_t pid[5];//pidFirst, pidSecond, pidThird, pidFourth, pidFifth;
+    pid_t pid[5];
  
     printf("Original program,  pid=%d\n",  getpid());
 
