@@ -1,6 +1,8 @@
 #include <unistd.h>
 #include <stdio.h>
 #include <stdlib.h>
+#include <sys/types.h>
+#include <sys/wait.h>
 
 
 /*******************************************
@@ -71,6 +73,7 @@ int main (void) {
         // Если процесс дочерний, то для него создаётсЯ ещё один дочерний процесс  
         pidSecond = fork();
         processStat(pidSecond);
+        wait(pidSecond);
     } 
     else if(pidFirst == -1){
         printf("Error!\n");
@@ -98,9 +101,9 @@ int main (void) {
 	            // Для дочернего процесса создаётся свой второй дочерний процесс
 	            pidFifth = fork();
 	            processStat(pidFifth);
-
+                wait(pidFourth);
+                wait(pidFifth);
 		    }
-
         }
         else if(pidThird == -1){
             printf("Error!\n");
@@ -108,9 +111,10 @@ int main (void) {
         }
         else{
             printf("In parent,  pid=%d,  fork returned=%d\n", getpid(),  pidThird);
+            wait(pidThird);
         }
 
-
+        wait(pidFirst);
     }
     
     exit(EXIT_SUCCESS);
