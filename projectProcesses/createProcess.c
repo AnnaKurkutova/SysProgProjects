@@ -62,59 +62,58 @@ void processStat(pid_t pid){
 
 int main (void) {
  
-    pid_t pidFirst, pidSecond, pidThird, pidFourth, pidFifth;
+    pid_t pid[5];//pidFirst, pidSecond, pidThird, pidFourth, pidFifth;
  
     printf("Original program,  pid=%d\n",  getpid());
 
     //Создаются первые два процесса: родительский и дочерний
-    pidFirst = fork();
-    if(pidFirst == 0){
+    pid[0] = fork();
+    if(pid[0] == 0){
         printf("In child process,  pid=%d,  ppid=%d\n", getpid(),  getppid());
         // Если процесс дочерний, то для него создаётсЯ ещё один дочерний процесс  
-        pidSecond = fork();
-        processStat(pidSecond);
-        wait(pidSecond);
+        pid[1] = fork();
+        processStat(pid[1]);
     } 
-    else if(pidFirst == -1){
+    else if(pid[0] == -1){
         printf("Error!\n");
         exit(1);
     }
     else{
-        printf("In parent,  pid=%d,  fork returned=%d\n", getpid(),  pidFirst);
+        printf("In parent,  pid=%d,  fork returned=%d\n", getpid(),  pid[0]);
         // Если процесс родительский, то для него создаётся ещё один дочерний процесс
-        pidThird = fork();
+        pid[2] = fork();
 
-        if(pidThird == 0){
+        if(pid[2] == 0){
             printf("In child process,  pid=%d,  ppid=%d\n", getpid(),  getppid()); 
             // Для дочернего процесса создаётся свой первый дочерний процесс 
-            pidFourth = fork();
+            pid[3] = fork();
 
-            if(pidFourth == 0){
+            if(pid[3] == 0){
             printf("In child process,  pid=%d,  ppid=%d\n", getpid(),  getppid());  
             } 
-            else if(pidFourth == -1){
+            else if(pid[3] == -1){
 	            printf("Error!\n");
 	            exit(1);
 	        }
 	        else{
-	            printf("In parent,  pid=%d,  fork returned=%d\n", getpid(),  pidFourth);
+	            printf("In parent,  pid=%d,  fork returned=%d\n", getpid(),  pid[3]);
 	            // Для дочернего процесса создаётся свой второй дочерний процесс
-	            pidFifth = fork();
-	            processStat(pidFifth);
-                wait(pidFourth);
-                wait(pidFifth);
+	            pid[4] = fork();
+	            processStat(pid[4]);
 		    }
         }
-        else if(pidThird == -1){
+        else if(pid[2] == -1){
             printf("Error!\n");
             exit(1);
         }
         else{
-            printf("In parent,  pid=%d,  fork returned=%d\n", getpid(),  pidThird);
-            wait(pidThird);
+            printf("In parent,  pid=%d,  fork returned=%d\n", getpid(),  pid[2]);
         }
 
-        wait(pidFirst);
+        for(int i = 0; i < 5; i++){
+            wait(pid[i]);
+        }
+        
     }
     
     exit(EXIT_SUCCESS);
