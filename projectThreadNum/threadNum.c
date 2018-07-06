@@ -31,5 +31,6 @@ int main(){
         errorJoinThread(status); //контроль ошибок
     }
 
+    pthread_attr_destroy(&attr);
     exit(EXIT_SUCCESS);
 }
