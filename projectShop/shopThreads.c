@@ -32,41 +32,41 @@ pthread_cond_t cond = PTHREAD_COND_INITIALIZER; //инициализация у�
 
 /* Функция потока-покупателя */
 void *doShopping(void *arg){
-	int num = *((int*)arg);
+    int num = *((int*)arg);
     int productDemand = 10000;
 
     printf("Покупатель %d пошёл на шоппинг\n", num);
 
     do{
-	    for(int i = 0; i < STORE_COUNT; i++){
-	        if((storeStat[i] == 0) && (store[i] > 0)){
-	        	pthread_mutex_lock(&mutex); //захват мьютекса
-	        	storeStat[i] = 1;
-	        	pthread_mutex_unlock(&mutex); //освобождение мьютекса
-	        	if(store[i] <= productDemand){
-	                productDemand -= store[i];
-	                printf("Покупатель %d купил в магазине номер %d %d штук товара\n", num, i, store[i]);
-	                store[i] = 0;
-	                storeStat[i] = 0;
-	            }
-	            else{
-	            	store[i] -= productDemand;
-	            	printf("Покупатель %d купил в магазине номер %d %d штук товара\n", num, i, productDemand);
-	            	productDemand = 0;
-	            }
-	            pthread_mutex_lock(&mutex); //захват мьютекса
-	        	storeStat[i] = 0;
-	        	pthread_mutex_unlock(&mutex); //освобождение мьютекса
-	        	if(productDemand == 0){
-	        		buyerStat[num] = 1;
+        for(int i = 0; i < STORE_COUNT; i++){
+            if((storeStat[i] == 0) && (store[i] > 0)){
+                pthread_mutex_lock(&mutex); //захват мьютекса
+                storeStat[i] = 1;
+                pthread_mutex_unlock(&mutex); //освобождение мьютекса
+                if(store[i] <= productDemand){
+                    productDemand -= store[i];
+                    printf("Покупатель %d купил в магазине номер %d %d штук товара\n", num, i, store[i]);
+                    store[i] = 0;
+                    storeStat[i] = 0;
+                }
+                else{
+                    store[i] -= productDemand;
+                    printf("Покупатель %d купил в магазине номер %d %d штук товара\n", num, i, productDemand);
+                    productDemand = 0;
+                }
+                pthread_mutex_lock(&mutex); //захват мьютекса
+                storeStat[i] = 0;
+                pthread_mutex_unlock(&mutex); //освобождение мьютекса
+                if(productDemand == 0){
+                    buyerStat[num] = 1;
                     pthread_cond_signal(&cond);
-	            	pthread_exit(NULL);
-	        	}
-	        	else{
-	        		sleep(1);
-	        	}    
-	        }
-	    }
+                    pthread_exit(NULL);
+                }
+                else{
+                    sleep(1);
+                }    
+            }
+        }
     }while(buyerStat[num] = 1);
 }
 
@@ -78,20 +78,20 @@ void *deliverGoods(void *arg){
     printf("Погрузчик пришёл на работу\n");
 
     while(1){
-	    for(int i = 0; i < STORE_COUNT; i++){
-	        if(storeStat[i] == 0){
-	        	pthread_mutex_lock(&mutex); //захват мьютекса
-	        	storeStat[i] = 1;
-	        	pthread_mutex_unlock(&mutex); //освобождение мьютекса
-	        	store[i] += 500;
-	        	printf("Погрузчик доставил в магазин номер %d %d штук товара\n", i, goodsDelivered);
-	        	pthread_mutex_lock(&mutex); //захват мьютекса
-	        	storeStat[i] = 0;
-	        	pthread_mutex_unlock(&mutex); //освобождение мьютекса
-	        	sleep(2);
-	        } 
-	    } 
-	}     
+        for(int i = 0; i < STORE_COUNT; i++){
+            if(storeStat[i] == 0){
+                pthread_mutex_lock(&mutex); //захват мьютекса
+                storeStat[i] = 1;
+                pthread_mutex_unlock(&mutex); //освобождение мьютекса
+                store[i] += 500;
+                printf("Погрузчик доставил в магазин номер %d %d штук товара\n", i, goodsDelivered);
+                pthread_mutex_lock(&mutex); //захват мьютекса
+                storeStat[i] = 0;
+                pthread_mutex_unlock(&mutex); //освобождение мьютекса
+                sleep(2);
+            } 
+        } 
+    }     
 }
 
 /* Функция контроля ошибок при создании потока */
@@ -111,12 +111,12 @@ void errorJoinThread(void *status){
 }
 
 int main(){
-	int i, result; //счётчик цикла и результат создания потока
-    pthread_attr_t attr; //атрибут для создания потока
-	pthread_t deliveryman; //поток-погрузчик
-	int dNum = BUYERS_COUNT; //идентификатор потока-погрузчика
-	pthread_t buyers[BUYERS_COUNT]; //потоки-покупатели
+    int i, result; //счётчик цикла и результат создания потока
     int num[BUYERS_COUNT]; //идентификаторы потоков
+    int dNum = BUYERS_COUNT; //идентификатор потока-погрузчика
+    pthread_attr_t attr; //атрибут для создания потока
+    pthread_t deliveryman; //поток-погрузчик
+    pthread_t buyers[BUYERS_COUNT]; //потоки-покупатели
     void *status; //статус завершения потока
     
     // инициализация и установка атрибута
@@ -135,16 +135,15 @@ int main(){
     result = pthread_create(&deliveryman, &attr, deliverGoods, (void*) &dNum); //создание потока
     errorCreateThread(result); //контроль ошибок
 
-    for(i = 0; i < BUYERS_COUNT; i++){
-    	pthread_mutex_lock(&mutex);
-        while(buyerStat[i] == 0)
-            pthread_cond_wait(&cond, &mutex);
-        pthread_mutex_unlock(&mutex);
-        pthread_join(buyers[i], &status); 
-        errorJoinThread(status); //контроль ошибок
-        printf("Покупатель %d купил всё, что хотел и пошёл домой\n", i);
-        sleep(1); 
-    }
+    do{
+        for(i = 0; i < BUYERS_COUNT; i++){
+            pthread_join(buyers[i], &status); 
+            errorJoinThread(status); //контроль ошибок
+            printf("Покупатель %d купил всё, что хотел и пошёл домой\n", i); 
+            sleep(1);
+        }
+    }while((buyerStat[0]+buyerStat[1]+buyerStat[2]+buyerStat[3]+buyerStat[4]) == 5);
+    
     printf("Все %d покупателя ушли домой\n", BUYERS_COUNT);
     pthread_cancel(deliveryman);
     printf("Магазин закрылся, погрузчик больше сегодня не работает\n");
