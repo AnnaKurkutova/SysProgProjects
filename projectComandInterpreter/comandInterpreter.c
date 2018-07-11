@@ -36,9 +36,9 @@ void rightCom(char * argv[], int i){
 }
 
 void main(int argc, char * argv[]){
-	pid_t pid_first, pid_second, done;
-	int *ptr_fd = fd;
-	int status;
+    pid_t pid_first, pid_second, done;
+    int *ptr_fd = fd;
+    int status;
     const int pid_num = 2; //количество вызовов fork() для создания дочерних процессов
     size_t result;
     
@@ -64,9 +64,9 @@ void main(int argc, char * argv[]){
             }
         } 
         else if(pid_first == -1){
-	        perror("Error in creating the process\n");
-	        exit(EXIT_FAILURE);
-	    }
+            perror("Error in creating the process\n");
+            exit(EXIT_FAILURE);
+        }
     }
     //ожидание завершения дочерних процессов
     for(int i = 0; i < pid_num; i++){
