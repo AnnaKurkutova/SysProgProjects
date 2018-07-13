@@ -1,63 +1,15 @@
-#include <errno.h>
-#include <unistd.h>
-#include <string.h>
 #include <stdio.h>
 #include <stdlib.h>
-#include <sys/types.h>
-#include <sys/wait.h>
 #include <sys/msg.h>
 #include <sys/ipc.h>
+#include "message.h"
 
-/*********************************************************
-**Программа-пользователь.                               **
-**Программа получает доступ к очереди имён и очереди    **  
-**сообщений,созданных программой-сервером. Программа    **
-**позволяет пользователю отправлять сообщения и читать  **
-**сообщения свои и других пользователей.                **
-*********************************************************/
-
-#define TEXT_SIZE 100
-#define NAME_SIZE 10
-#define NUM_SIZE 10
-
-int msg_type = 1;
-
-/* Структура, определяющая образец сообщения */
-struct msg_buff{
-    long type;  //тип сообщения 
-    char text[TEXT_SIZE]; //сообщение
-};
-
-/* Функция отправки сообщений в очередь имён/сообщений */
-void send_msg(int qid, char *buff){
-    struct msg_buff snd_msg;
-
-    //printf("Message identifier is %d\n", qid);
-    strncpy(snd_msg.text, buff, TEXT_SIZE);
-    snd_msg.type = msg_type;
-    if(msgsnd(qid, (void *) &snd_msg, sizeof(snd_msg.text), IPC_NOWAIT) == -1){
-        perror("msgsnd error");
-        exit(EXIT_FAILURE);
-    }
-    printf("sent: %s\n", snd_msg.text);
-}
-
-/* Функция чтения сообщений из очереди имён/сообщений */
-void receive_msg(int qid, char *buff){
-    struct msg_buff rcv_msg;
-    
-    if(msgrcv(qid, (void *) &rcv_msg, sizeof(rcv_msg.text), 0, IPC_NOWAIT) == -1){
-        if(errno != ENOMSG){
-            perror("msgrcv error");
-            exit(EXIT_FAILURE);
-        }
-        printf("No message available for msgrcv()\n");
-    }
-    else{
-        printf("received: %s\n", rcv_msg.text);
-    }
-    strncpy(buff, rcv_msg.text, NAME_SIZE);
-}
+/**********************************************************
+**Программа-сервер.                                      **
+**Программа создаёт очередь имён и очередь сообщений.    **
+**Пользователь может читать все сообщения и имена других **
+**пользователей.                                         **
+**********************************************************/
 
 /* Вывод возможных операций для пользователя */
 void usage(){
