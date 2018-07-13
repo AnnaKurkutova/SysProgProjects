@@ -39,14 +39,14 @@ void main(){
 
     /* Создание разделяемой памяти имён пользователей */
     key_names = ftok("./server.c", 'A');
-    shmid_names = shmget(key_names, sizeof(message_t), IPC_CREAT | 0666);
+    shmid_names = shmget(key_names, sizeof(message_t)*NUM_MESSAGES, IPC_CREAT | 0666);
     if(shmid_names == -1){
         perror("shmget error");
         exit(EXIT_FAILURE);
     }
     /* Создание разделяемой памяти сообщений пользователей*/
     key_msgs = ftok("./server.c", 'B');
-    shmid_msgs = shmget(key_msgs, sizeof(message_t), IPC_CREAT | 0666);
+    shmid_msgs = shmget(key_msgs, sizeof(message_t)*NUM_MESSAGES, IPC_CREAT | 0666);
     if(shmid_msgs == -1){
         perror("shmget error");
         exit(EXIT_FAILURE);
@@ -68,10 +68,6 @@ void main(){
     semctl(semid, 0, SETVAL, 0);
     semctl(semid, 1, SETVAL, 0);
 
-    /* В начале программы нет пользователей и, следовательно, сообщений */
-    name_p->type = MSG_TYPE_EMPTY;
-    msg_p->type = MSG_TYPE_EMPTY;
-
     int flag = 1; //для выхода из цикла
     usage();
     do{
@@ -79,19 +75,16 @@ void main(){
         fgets(buff, sizeof(buff), stdin);
         sscanf(buff, "%d", &ch);
         switch(ch){
-        	/* Чтение имён пользователей */
+            /* Чтение имён пользователей */
             case 1:{
                 while(semctl(semid, 0, GETVAL, 0)); //если блокировка - ждать
                 semctl(semid, 0, SETVAL, 1); //установить блокировку
-                if(name_p->type != MSG_TYPE_EMPTY){
-                    /* Чтение имени */
-                    if (name_p->type == MSG_TYPE_STRING){
-                        printf ("in chat: %s\n", name_p->string);
-                    }
+                /* Чтение имён */
+                while(name_p->type == MSG_TYPE_STRING){
+                    printf ("user: %s\n", name_p->string);
+                    name_p++;
                 }
-                else{
-                    printf("No users in chat\n");
-                }
+                printf("No more users in chat\n");
                 semctl(semid, 0, SETVAL, 0); //снять блокировку
             }
             break;
@@ -99,15 +92,12 @@ void main(){
             case 2:{
                 while(semctl(semid, 1, GETVAL, 0)); //если блокировка - ждать 
                 semctl(semid, 1, SETVAL, 1); //установить блокировку
-                if(msg_p->type != MSG_TYPE_EMPTY){
-                    /* Чтение сообщения */
-                    if (msg_p->type == MSG_TYPE_STRING){
-                        printf ("received: %s\n", msg_p->string);
-                    }
+                /* Чтение сообщений */
+                while(msg_p->type == MSG_TYPE_STRING){
+                    printf ("received: %s\n", msg_p->string);
+                    msg_p++;
                 }
-                else{
-                    printf("No users in chat\n");
-                }
+                printf("No more messages in chat\n");
                 semctl(semid, 1, SETVAL, 0); //снять блокировку
             }
             break;

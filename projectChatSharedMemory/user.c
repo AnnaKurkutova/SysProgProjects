@@ -26,27 +26,30 @@ void write_msg(char *buff){
     buff[i] = '\0';
 }
 
-/* Функция отправки сообщения в разделяемую память*/
-void send_msg(message_t *ptr, char *buff){
-   ptr->type = MSG_TYPE_STRING;
-   write_msg(buff);
-   strncpy(ptr->string, buff, MAX_TEXT);
-}
-
-/* Функция получения сообщения из разделяемой памяти*/
-void receive_msg(message_t *ptr, char *buff){
-    if (ptr->type == MSG_TYPE_STRING){
-        printf ("received: %s\n", ptr->string);
+/* Функция записи имени нового пользователя в разделяемую память,
+перед запросом имени пользователю выводится список уже существующих 
+в чате пользователей */
+void set_name(message_t *name_p, char *buff, int semid){
+    while(semctl(semid, 0, GETVAL, 0)); //если блокировка - ждать
+    semctl(semid, 0, SETVAL, 1); //установить блокировку
+    /* Чтение имён */
+    printf("These users are already in chat:\n");
+    while(name_p->type == MSG_TYPE_STRING){
+        printf ("%s\n", name_p->string);
+        name_p++;
     }
-    else{
-        printf("No messages in chat\n");
-    }
+    /* Запись своего имени */
+    printf("Enter your name: ");
+    name_p->type = MSG_TYPE_STRING;
+    write_msg(buff);
+    strncpy(name_p->string, buff, MAX_TEXT);
+    name_p++;
+    semctl(semid, 0, SETVAL, 0); //отменить блокировку
 }
 
 /* Вывод возможных операций для пользователя */
 void usage(){
-    printf("Press 1 to read messages\n");
-    printf("Press 2 to send message\n");
+    printf("Press 1 to send and read messages\n");
     printf("Press 0 to exit\n");
 }
 
@@ -58,7 +61,7 @@ void main(){
     int key_sem; //ключ массива семафоров
     message_t *msg_p; //адрес сообщения в разделяемой памяти
     message_t *name_p; //адрес имени в разделяемой памяти
-    char *buff;
+    char *buff = malloc(MAX_NAME);
 
     /* Подключение к массиву семафоров из двух элементов */
     key_sem = ftok("./server.c", 'C');
@@ -70,7 +73,7 @@ void main(){
 
     /* Создание разделяемой памяти имён пользователей */
     key_names = ftok("./server.c", 'A');
-    shmid_names = shmget(key_names, sizeof(message_t), 0);
+    shmid_names = shmget(key_names, sizeof(message_t)*NUM_MESSAGES, 0);
     if(shmid_names == -1){
         perror("shmget error");
         exit(EXIT_FAILURE);
@@ -78,7 +81,7 @@ void main(){
 
     /* Создание разделяемой памяти сообщений пользователей*/
     key_msgs = ftok("./server.c", 'B');
-    shmid_msgs = shmget(key_msgs, sizeof(message_t), 0);
+    shmid_msgs = shmget(key_msgs, sizeof(message_t)*NUM_MESSAGES, 0);
     if(shmid_msgs == -1){
         perror("shmget error");
         exit(EXIT_FAILURE);
@@ -97,12 +100,7 @@ void main(){
     }
     
     /* Пользователь в начале программы вводит своё имя */
-    while(semctl(semid, 0, GETVAL, 0)); //если блокировка - ждать
-    semctl(semid, 0, SETVAL, 1); //установить блокировку
-    buff = malloc(MAX_NAME);
-    printf("Enter your name: ");
-    send_msg(name_p, buff);
-    semctl(semid, 0, SETVAL, 0); //отменить блокировку
+    set_name(name_p, buff, semid);
  
     int flag = 1; //для выхода из цикла
     usage();
@@ -113,30 +111,23 @@ void main(){
         fgets(buff, sizeof(buff), stdin);
         sscanf(buff, "%d", &ch);
         switch(ch){
-        	/* Чтение сообщений */
+            /* Чтение сообщений */
             case 1:{
-                while(semctl(semid, 1, GETVAL, 0)); //если блокировка - ждать
-                semctl(semid, 1, SETVAL, 1); //установить блокировку
-                if(msg_p->type != MSG_TYPE_EMPTY){
-                    free(buff);
-                    buff = malloc(MAX_TEXT);
-                    receive_msg(msg_p, buff);
-                }
-                else{
-                    printf("No messages in chat\n");
-                }
-                semctl(semid, 1, SETVAL, 0); //отменить блокировку
-            }
-            break;
-            
-            /* Отправка сообщения */
-            case 2:{
-                while(semctl(semid, 1, GETVAL, 0)); //если блокировка - ждать
-                semctl(semid, 1, SETVAL, 1); //установить блокировку
                 free(buff);
                 buff = malloc(MAX_TEXT);
+                while(semctl(semid, 1, GETVAL, 0)); //если блокировка - ждать
+                semctl(semid, 1, SETVAL, 1); //установить блокировку
+                /* Читаем все новые сообщения */
+                while(msg_p->type == MSG_TYPE_STRING){
+                    printf ("received: %s\n", msg_p->string);
+                    msg_p++;
+                }
+                /* Пишем своё сообщение */
                 printf("Enter: ");
-                send_msg(msg_p, buff);
+                msg_p->type = MSG_TYPE_STRING;
+                write_msg(buff);
+                strncpy(msg_p->string, buff, MAX_TEXT);
+                msg_p++;
                 semctl(semid, 1, SETVAL, 0); //отменить блокировку
             }
             break;
