@@ -17,7 +17,7 @@ void main(){
     socklen_t addr_size;
     char buff[BUFF_SIZE];
 
-    //задаем адрес прослушивания и порт
+    //задаем адрес и порт
     memset(&my_addr, 0, sizeof(struct sockaddr_in));
     my_addr.sin_family = AF_INET;
     my_addr.sin_port = IPPROTO_UDP;
