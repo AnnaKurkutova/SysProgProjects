@@ -25,8 +25,8 @@
 #define BUFF_SIZE 100    // длина буфера считывания в байтах
 
 void main(){
-	long int my_time; //переменная для сохранения текущего времени
-	int ret;
+    long int my_time; //переменная для сохранения текущего времени
+    int ret;
     int u_fd, t_fd, max_fd; //дескрипторы
     int port_tcp = 7777, port_udp = 7778; //порты
     struct timeval tv; //время
@@ -115,8 +115,8 @@ void main(){
         }  
 
         if(FD_ISSET(t_fd, &readfds)){ //проверка на наличие дескриптора в наборе
-        	int cfd;
-        	buff = malloc(BUFF_SIZE);
+            int cfd;
+            buff = malloc(BUFF_SIZE);
 
             /* Принимаем соединение, создаём дескриптор для взаимодействия с конкретным клиентом */
             if((cfd = accept(t_fd, (struct sockaddr *) &addr_tcp, &addr_size)) == -1){
@@ -151,7 +151,7 @@ void main(){
         }
 
         if(FD_ISSET(u_fd, &readfds)) { //проверка на наличие дескриптора в наборе
-        	buff = malloc(BUFF_SIZE);
+            buff = malloc(BUFF_SIZE);
 
             /* Принимаем сообщение от клиента, сохраняем его npoint */
             if(recvfrom(u_fd, buff, BUFF_SIZE, 0, (struct sockaddr *) &addr_udp, &addr_size) == -1){
