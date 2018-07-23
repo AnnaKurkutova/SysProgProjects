@@ -10,7 +10,7 @@
 #define BUFF_SIZE 100
 
 void main(){
-	int sfd; //дескриптор сокета
+    int sfd; //дескриптор сокета
     struct sockaddr_in send_addr; //структура, хранящая npoint
     socklen_t addr_size; //размер структуры
     char buff[BUFF_SIZE]; //строка с сообщением
