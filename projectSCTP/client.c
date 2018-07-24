@@ -29,18 +29,7 @@
 *  временем от сервера.                                                         *
 ********************************************************************************/
 
-#define BUFF_SIZE 50
-
-/* Функция ввода сообщения с клавиатуры */
-void write_msg(char *buff){
-    int ch;
-    int i = 0;
-    
-    while (((ch = getchar()) != '\n') && (i < BUFF_SIZE)) {
-        buff[i++] = ch;
-    }
-    buff[i] = '\0';
-}
+#define BUFF_SIZE 100
 
 void main(){
     int sfd; //файловый дескриптор
