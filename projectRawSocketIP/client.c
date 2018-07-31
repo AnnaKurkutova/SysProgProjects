@@ -27,8 +27,34 @@
 #define DEST_PORT 7777
 #define SOURCE_PORT 9999
 
+
+unsigned short check_sum (unsigned short *buff, int total_size) {
+    unsigned long sum;
+    u_short oddbyte;
+    unsigned short result;
+ 
+    sum = 0;
+
+    while (total_size > 1) {
+        sum += *buff++;
+        total_size -= 2;
+    }
+ 
+    if (total_size == 1) {
+        oddbyte = 0;
+        *((u_char *) & total_size) = *(u_char *) buff;
+        sum += total_size;
+    }
+ 
+    sum = (sum >> 16) + (sum & 0xffff);
+    sum += (sum >> 16);
+    result = (short) ~sum;
+ 
+    return result;
+}
+
 /* Функция ввода сообщения с клавиатуры */
-void write_msg(char *buff){
+void write_msg (char *buff) {
     int ch;
     int i = 0;
     
@@ -86,6 +112,8 @@ void main(){
     udph->source = htons(SOURCE_PORT); 
     udph->dest = htons(DEST_PORT);
     udph->len = htons(UDP_HDR_SIZE + strlen(msg)); 
+
+    iph->ip_sum = check_sum((unsigned short *)buff, iph->ip_len);
 
     setsockopt(sfd, IPPROTO_IP, IP_HDRINCL, &val, sizeof(val)); //настройка сокета
 
